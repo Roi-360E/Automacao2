@@ -34,9 +34,14 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
         }
-        .cta-button:hover {
+        .cta-button:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(192, 38, 211, 0.5);
+        }
+        .cta-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            background: #374151; /* gray-700 */
         }
         .feature-card, .price-card, .contract-card {
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -212,8 +217,8 @@
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Relatórios de performance e insights</li>
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Suporte técnico contínuo</li>
                         </ul>
-                        <button data-plan="organico_ia" class="cta-button w-full text-center bg-gradient-to-r from-indigo-800 to-purple-900 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg mt-auto">
-                            Construir Minha Base
+                        <button data-plan="organico_ia" class="cta-button w-full text-center bg-gradient-to-r from-indigo-800 to-purple-900 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg mt-auto" disabled>
+                            Inicializando...
                         </button>
                     </div>
                 </div>
@@ -253,8 +258,8 @@
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Análise Preditiva de ROI em anúncios</li>
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Relatórios de performance unificados</li>
                         </ul>
-                        <button data-plan="dominio_360" class="cta-button w-full text-center bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg mt-auto">
-                            Dominar o Mercado
+                        <button data-plan="dominio_360" class="cta-button w-full text-center bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg mt-auto" disabled>
+                           Inicializando...
                         </button>
                     </div>
                 </div>
@@ -284,18 +289,18 @@
 
     <section id="checkout-section" class="hidden container mx-auto p-4 md:p-8">
          <div class="contract-card p-4 sm:p-8 max-w-2xl mx-auto">
-             <header class="text-center mb-8">
-                 <h1 class="text-3xl md:text-4xl font-bold gradient-text">Finalizar Pagamento</h1>
-                 <p id="checkout-summary" class="text-gray-400 mt-2">Plano selecionado: <span class="font-bold text-indigo-400"></span></p>
-             </header>
-             <div class="flex justify-center">
-                 <div id="pix-container" class="p-6 rounded-lg bg-black text-center w-full md:w-2/3">
-                     <!-- PIX content will be populated by JS -->
-                 </div>
-             </div>
-             <div class="text-center mt-8">
-                 <button id="back-to-proposal-btn" class="text-indigo-400 hover:text-indigo-300">&larr; Voltar para os Planos</button>
-             </div>
+               <header class="text-center mb-8">
+                     <h1 class="text-3xl md:text-4xl font-bold gradient-text">Finalizar Pagamento</h1>
+                     <p id="checkout-summary" class="text-gray-400 mt-2">Plano selecionado: <span class="font-bold text-indigo-400"></span></p>
+               </header>
+               <div class="flex justify-center">
+                     <div id="pix-container" class="p-6 rounded-lg bg-black text-center w-full md:w-2/3">
+                         <!-- PIX content will be populated by JS -->
+                     </div>
+               </div>
+               <div class="text-center mt-8">
+                     <button id="back-to-proposal-btn" class="text-indigo-400 hover:text-indigo-300">&larr; Voltar para os Planos</button>
+               </div>
          </div>
     </section>
 
@@ -317,7 +322,6 @@
         let db, auth, userId;
         let selectedPlan = {};
         let currentClientData = null;
-        let isAuthReady = false; // State to track Firebase auth readiness
 
         const planDetails = {
             organico_ia: { 
@@ -331,7 +335,8 @@
                     "Otimização constante das campanhas de prospecção.",
                     "Relatórios de performance e insights.",
                     "Suporte técnico contínuo."
-                ] 
+                ],
+                buttonText: "Construir Minha Base"
             },
             dominio_360: { 
                 name: "Plano Domínio 360", 
@@ -345,7 +350,8 @@
                     "Criação de Públicos de Alta Conversão.",
                     "Análise Preditiva de ROI em anúncios.",
                     "Relatórios de performance unificados (Orgânico + Pago)."
-                ] 
+                ],
+                buttonText: "Dominar o Mercado"
             }
         };
 
@@ -363,51 +369,44 @@
 
         async function initializeFirebase() {
             try {
-                // Use environment-provided config, with a fallback for local testing
-                const firebaseConfig = typeof __firebase_config !== 'undefined'
-                    ? JSON.parse(__firebase_config)
+                // Use a configuração fornecida pelo ambiente, com fallback para a sua configuração específica.
+                const firebaseConfig = typeof window.__firebase_config !== 'undefined'
+                    ? JSON.parse(window.__firebase_config)
                     : {
-                        apiKey: "YOUR_API_KEY", // IMPORTANT: Replace with your actual config for GitHub Pages
+                        apiKey: "AIzaSyAZmxW3HBCmvXeUR8cmszIWXmUM-2-9ueo",
                         authDomain: "contrato-839eb.firebaseapp.com",
                         projectId: "contrato-839eb",
                         storageBucket: "contrato-839eb.appspot.com",
                         messagingSenderId: "257509711471",
-                        appId: "1:257509711471:web:bcd069639d845fd88db79a"
+                        appId: "1:257509711471:web:bcd069639d845fd88db79a",
+                        measurementId: "G-YGDLSEV3H4"
                     };
 
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Listen for auth state changes to get the user ID
+                // O listener aguarda a conclusão da autenticação.
                 onAuthStateChanged(auth, user => {
                     if (user) {
                         userId = user.uid;
                         console.log("Authenticated with UID:", userId);
-                        if (!isAuthReady) {
-                            isAuthReady = true;
-                            // Enable the plan buttons now that auth is ready
-                            document.querySelectorAll('button[data-plan]').forEach(button => {
-                                button.disabled = false;
-                                button.innerHTML = button.dataset.originalText;
-                            });
-                        }
+                        // Ativa os botões dos planos após a autenticação bem-sucedida.
+                        document.querySelectorAll('button[data-plan]').forEach(button => {
+                            const planKey = button.getAttribute('data-plan');
+                            button.disabled = false;
+                            button.textContent = planDetails[planKey].buttonText;
+                        });
                     } else {
                         userId = null;
-                        isAuthReady = false;
                         console.log("User is signed out.");
-                        showNotification("Falha na autenticação. A página será recarregada.", "error", 5000);
-                        document.querySelectorAll('button[data-plan]').forEach(button => {
-                            button.disabled = true;
-                            button.innerHTML = `<span>Falha na Conexão</span>`;
-                        });
-                        setTimeout(() => window.location.reload(), 5000);
+                        showNotification("Não foi possível autenticar a sessão. Tente recarregar a página.", "error", 6000);
                     }
                 });
 
-                // Sign in using the provided token or fall back to anonymous
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                // Tenta o login com o token customizado ou, como fallback, o anônimo.
+                if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
+                    await signInWithCustomToken(auth, window.__initial_auth_token);
                 } else {
                     await signInAnonymously(auth);
                 }
@@ -520,211 +519,98 @@
                 showNotification("Preencha Nome, CNPJ/CPF e E-mail.", "error");
                 return;
             }
-
+            
             currentClientData = data;
-            
-            // Bloquear todos os campos
-            document.getElementById('input-nome-completo').readOnly = true;
-            document.getElementById('input-cnpj').readOnly = true;
-            document.getElementById('input-endereco').readOnly = true;
-            document.getElementById('input-email').readOnly = true;
-            
-            // Adicionar classe visual para campos bloqueados
-            const inputs = ['input-nome-completo', 'input-cnpj', 'input-endereco', 'input-email'];
-            inputs.forEach(id => {
-                const input = document.getElementById(id);
-                input.classList.add('bg-gray-600', 'text-gray-300', 'cursor-not-allowed');
-            });
-            
-            // Substituir botão de salvar por botão de editar
-            const saveBtn = document.getElementById('save-data-btn');
-            saveBtn.innerHTML = 'Dados Salvos ✓';
-            saveBtn.disabled = true;
-            saveBtn.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-purple-700');
-            saveBtn.classList.add('bg-green-600', 'cursor-not-allowed');
-            
-            // Adicionar botão de editar
-            const editBtn = document.createElement('button');
-            editBtn.id = 'edit-data-btn';
-            editBtn.innerHTML = 'Editar Dados';
-            editBtn.className = 'mt-2 w-full text-center bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-lg';
-            editBtn.addEventListener('click', unlockContractorData);
-            saveBtn.parentNode.insertBefore(editBtn, saveBtn.nextSibling);
-
             showNotification("Dados do contratante salvos com sucesso!", "success");
-            document.querySelector('[data-tab="services"]').click(); // Mover para a próxima aba
-        }
-
-        function unlockContractorData() {
-            // Desbloquear campos
-            const inputs = ['input-nome-completo', 'input-cnpj', 'input-endereco', 'input-email'];
-            inputs.forEach(id => {
-                const input = document.getElementById(id);
-                input.readOnly = false;
-                input.classList.remove('bg-gray-600', 'text-gray-300', 'cursor-not-allowed');
-            });
-            
-            // Restaurar botão de salvar
-            const saveBtn = document.getElementById('save-data-btn');
-            saveBtn.innerHTML = 'Salvar Dados do Contratante';
-            saveBtn.disabled = false;
-            saveBtn.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-purple-700');
-            saveBtn.classList.remove('bg-green-600', 'cursor-not-allowed');
-            
-            // Remover botão de editar
-            const editBtn = document.getElementById('edit-data-btn');
-            if (editBtn) editBtn.remove();
-            
-            showNotification("Campos liberados para edição", "info");
+            document.querySelector('[data-tab="services"]').click(); // Move to next tab
         }
 
         async function generateContractPDF(clientData, signatureDataURL) {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'p',
-                unit: 'mm',
-                format: 'a4'
-            });
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-            // Margens conforme ABNT NBR 14724
-            const margins = {
-                top: 30,
-                bottom: 20,
-                left: 30,
-                right: 20
-            };
-            
+            const margins = { top: 25, bottom: 20, left: 25, right: 25 };
             const usableWidth = doc.internal.pageSize.width - margins.left - margins.right;
             let y = margins.top;
-            const lineSpacing = 6; // Espaçamento 1,5 conforme ABNT
+            const lineSpacing = 7;
 
-            const checkPageBreak = (neededHeight = 25) => {
+            const checkPageBreak = (neededHeight = 20) => {
                 if (y + neededHeight > doc.internal.pageSize.height - margins.bottom) {
                     doc.addPage();
                     y = margins.top;
                 }
             };
 
-            // Função para adicionar texto justificado
-            const addJustifiedText = (text, fontSize = 12, isBold = false) => {
-                doc.setFontSize(fontSize);
-                doc.setFont('times', isBold ? 'bold' : 'normal');
-                const splitText = doc.splitTextToSize(text, usableWidth);
-                doc.text(splitText, margins.left, y);
-                y += (splitText.length * lineSpacing);
-            };
-
-            // Função para adicionar título centralizado
-            const addCenteredTitle = (text, fontSize = 14, isBold = true) => {
-                doc.setFontSize(fontSize);
-                doc.setFont('times', isBold ? 'bold' : 'normal');
-                doc.text(text, doc.internal.pageSize.width / 2, y, { align: 'center' });
-                y += lineSpacing * 1.5;
-            };
-
-            // CABEÇALHO
-            addCenteredTitle("CONTRATO DE PRESTAÇÃO DE SERVIÇOS", 16, true);
-            y += lineSpacing;
-
-            // QUALIFICAÇÃO DAS PARTES
-            addJustifiedText("Pelo presente instrumento particular, as partes abaixo qualificadas:", 12, false);
-            y += lineSpacing;
-
-            addJustifiedText(`CONTRATANTE: ${clientData.nomeCompleto}, pessoa jurídica de direito privado, inscrita no CNPJ/CPF sob o nº ${clientData.cnpj}, com sede em ${clientData.endereco}, neste ato representada na forma de seu contrato social, doravante denominada simplesmente CONTRATANTE.`, 12, false);
-            y += lineSpacing;
-
-            addJustifiedText("CONTRATADO: ROI-360, representado por Matheus Henrique Laurindo, inscrito no CPF sob o nº 100.936.909-16, com sede na Rua Aquidabã, 199, Escola Agrícola, Blumenau, SC, CEP 89037-740, doravante denominado simplesmente CONTRATADO.", 12, false);
+            // --- HEADER ---
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text("CONTRATO DE PRESTAÇÃO DE SERVIÇOS", doc.internal.pageSize.width / 2, y, { align: 'center' });
             y += lineSpacing * 2;
 
-            addJustifiedText("Têm entre si justo e acordado o presente CONTRATO DE PRESTAÇÃO DE SERVIÇOS, mediante as cláusulas e condições a seguir estabelecidas:", 12, false);
-            y += lineSpacing * 2;
+            // --- PARTIES ---
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text("DAS PARTES", margins.left, y);
+            y += lineSpacing;
 
-            // CLÁUSULAS
-            const addClause = (numero, titulo, texto) => {
-                checkPageBreak(40);
-                
-                // Título da cláusula em maiúsculo e negrito
-                addJustifiedText(`CLÁUSULA ${numero}ª – ${titulo.toUpperCase()}`, 12, true);
-                y += lineSpacing / 2;
-                
-                // Texto da cláusula
-                addJustifiedText(texto, 12, false);
-                y += lineSpacing * 1.5;
-            };
-
-            // Remover tags HTML do texto financeiro
-            const financialClauseText = selectedPlan.financialClause
-                .replace(/<strong>/g, '')
-                .replace(/<\/strong>/g, '');
-
-            addClause("PRIMEIRA", "DO OBJETO", 
-                `O presente contrato tem como objeto a prestação de serviços de Automação de Vendas e Prospecção com Inteligência Artificial, conforme detalhado no ${selectedPlan.name}. Os serviços compreendem: ${selectedPlan.services.join('; ')}.`);
-
-            addClause("SEGUNDA", "DO VALOR E FORMA DE PAGAMENTO", financialClauseText);
-
-            addClause("TERCEIRA", "DO PRAZO E RESCISÃO",
-                "O presente contrato terá vigência de 6 (seis) meses, contados a partir da data de sua assinatura, renovando-se automaticamente por iguais períodos successivos, salvo manifestação expressa em contrário de qualquer das partes, mediante aviso prévio de 30 (trinta) dias. Em caso de rescisão imotivada pelo CONTRATANTE durante o prazo inicial, será devida multa compensatória equivalente a 20% (vinte por cento) do valor remanescente do contrato.");
-
-            addClause("QUARTA", "DAS OBRIGAÇÕES",
-                "Constitui obrigação do CONTRATADO prestar os serviços objeto deste contrato com zelo, diligência e de acordo com as melhores práticas de mercado. O CONTRATANTE obriga-se a fornecer todas as informações, acessos e dados necessários à execução dos serviços, bem como efetuar os pagamentos nos prazos estabelecidos.");
-
-            addClause("QUINTA", "DA CONFIDENCIALIDADE",
-                "As partes comprometem-se a manter sigilo absoluto sobre todas as informações confidenciais a que tiverem acesso em razão deste contrato, obrigando-se a não divulgá-las a terceiros sem prévia autorização por escrito da parte detentora da informação.");
-
-            addClause("SEXTA", "DO FORO",
-                "Fica eleito o foro da comarca de Blumenau, Estado de Santa Catarina, para dirimir quaisquer controvérsias oriundas do presente contrato, renunciando as partes a qualquer outro, por mais privilegiado que seja.");
-
-            // ENCERRAMENTO
-            y += lineSpacing * 2;
-            checkPageBreak(80);
+            doc.setFont('helvetica', 'normal');
+            let partiesText = `CONTRATANTE: ${clientData.nomeCompleto}, pessoa jurídica de direito privado, inscrita no CNPJ/CPF sob o nº ${clientData.cnpj}, com sede em ${clientData.endereco}, doravante denominada simplesmente CONTRATANTE.`;
+            let splitText = doc.splitTextToSize(partiesText, usableWidth);
+            doc.text(splitText, margins.left, y);
+            y += (splitText.length * lineSpacing) + (lineSpacing / 2);
             
-            addJustifiedText("E, por estarem assim justas e contratadas, firmam o presente contrato em duas vias de igual teor e forma, para que produza seus efeitos legais.", 12, false);
-            y += lineSpacing * 2;
+            partiesText = `CONTRATADO: ROI-360 (Matheus Henrique Laurindo), inscrito no CPF sob o nº 100.936.909-16, com sede na Rua Aquidabã, 199, Escola Agrícola, Blumenau, SC, CEP 89037-740, doravante denominado simplesmente CONTRATADO.`;
+            splitText = doc.splitTextToSize(partiesText, usableWidth);
+            doc.text(splitText, margins.left, y);
+            y += (splitText.length * lineSpacing) + lineSpacing;
 
-            // Data e local
-            const currentDate = new Date().toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-            });
+            // --- CLAUSES ---
+            const addClause = (title, text) => {
+                checkPageBreak(30);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, margins.left, y);
+                y += lineSpacing;
+                doc.setFont('helvetica', 'normal');
+                const splitClause = doc.splitTextToSize(text, usableWidth);
+                doc.text(splitClause, margins.left, y);
+                y += (splitClause.length * lineSpacing) + lineSpacing;
+            };
             
-            doc.text(`Blumenau/SC, ${currentDate}.`, doc.internal.pageSize.width / 2, y, { align: 'center' });
+            const financialClauseText = selectedPlan.financialClause.replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+
+            addClause("CLÁUSULA PRIMEIRA - DO OBJETO", `O presente contrato tem como objeto a prestação de serviços de Automação de Vendas e Prospecção com Inteligência Artificial, conforme detalhado no ${selectedPlan.name}. Os serviços incluem: ${selectedPlan.services.join(', ')}.`);
+            addClause("CLÁUSULA SEGUNDA - DO VALOR E DA FORMA DE PAGAMENTO", financialClauseText);
+            addClause("CLÁUSULA TERCEIRA - DO PRAZO E DA RESCISÃO", "Este contrato tem vigência de 6 meses, renovado automaticamente por iguais períodos. A rescisão por qualquer uma das partes exige aviso prévio de 30 dias. Em caso de rescisão imotivada pelo CONTRATANTE durante o prazo inicial, incidirá multa de 20% sobre o valor restante do contrato.");
+            addClause("CLÁUSULA QUARTA - DAS OBRIGAÇÕES", "O CONTRATADO se compromete a prestar os serviços com zelo e profissionalismo. O CONTRATANTE se compromete a fornecer as informações e acessos necessários e a realizar os pagamentos pontualmente.");
+            addClause("CLÁUSULA QUINTA - DO FORO", "Fica eleito o foro da comarca de Blumenau/SC para dirimir quaisquer controvérsias oriundas do presente contrato.");
+
+            // --- SIGNATURES ---
+            checkPageBreak(60);
+            y += lineSpacing * 2;
+            const dateText = `Blumenau/SC, ${new Date().toLocaleDateString('pt-BR')}.`;
+            doc.text(dateText, doc.internal.pageSize.width / 2, y, { align: 'center' });
             y += lineSpacing * 4;
 
-            // ASSINATURAS
             const signatureY = y;
             const signatureWidth = 70;
             const contractorX = margins.left + (usableWidth / 4) - (signatureWidth / 2);
             const contractedX = margins.left + (usableWidth * 3 / 4) - (signatureWidth / 2);
 
-            // Assinatura do contratante
             if (signatureDataURL) {
                 doc.addImage(signatureDataURL, 'PNG', contractorX, signatureY, signatureWidth, 25);
             }
-            
-            // Linha para assinatura
             doc.line(contractorX, signatureY + 30, contractorX + signatureWidth, signatureY + 30);
-            doc.setFontSize(10);
-            doc.setFont('times', 'normal');
-            doc.text(clientData.nomeCompleto.toUpperCase(), contractorX + signatureWidth / 2, signatureY + 35, { align: 'center' });
+            doc.text(clientData.nomeCompleto, contractorX + signatureWidth / 2, signatureY + 35, { align: 'center' });
             doc.text("CONTRATANTE", contractorX + signatureWidth / 2, signatureY + 40, { align: 'center' });
 
-            // Assinatura do contratado
-            doc.setFont('times', 'italic');
-            doc.setFontSize(12);
+            doc.setFont('helvetica', 'italic');
             doc.text('ROI-360', contractedX + signatureWidth/2, signatureY + 25, {align: 'center'});
-            
-            // Linha para assinatura
+            doc.setFont('helvetica', 'normal');
             doc.line(contractedX, signatureY + 30, contractedX + signatureWidth, signatureY + 30);
-            doc.setFont('times', 'normal');
-            doc.setFontSize(10);
-            doc.text('MATHEUS HENRIQUE LAURINDO', contractedX + signatureWidth / 2, signatureY + 35, { align: 'center' });
+            doc.text('ROI-360', contractedX + signatureWidth / 2, signatureY + 35, { align: 'center' });
             doc.text("CONTRATADO", contractedX + signatureWidth / 2, signatureY + 40, { align: 'center' });
 
-            // Salvar o PDF
-            const fileName = `Contrato_${clientData.nomeCompleto.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(fileName);
-            
+            doc.save(`Contrato_${clientData.nomeCompleto.replace(/\s/g, '_')}.pdf`);
             return doc.output('datauristring');
         }
 
@@ -734,6 +620,12 @@
             if (!currentClientData) {
                 showNotification("Por favor, preencha e salve os dados do contratante primeiro.", "error");
                 document.querySelector('[data-tab="parties"]').click();
+                return;
+            }
+
+            if (!userId) {
+                showNotification("Erro de autenticação. A página será recarregada.", "error", 5000);
+                setTimeout(() => window.location.reload(), 5000);
                 return;
             }
 
@@ -760,10 +652,6 @@
                 
                 showNotification("Salvando contrato no sistema...", "info");
                 
-                if (!userId) {
-                    throw new Error("Autenticação do usuário não encontrada. A página será recarregada.");
-                }
-                
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const docId = currentClientData.cnpj.replace(/\D/g, '') + '_' + Date.now();
                 const contractPath = `artifacts/${appId}/users/${userId}/contracts`;
@@ -787,9 +675,6 @@
             } catch (error) {
                 console.error("Erro ao finalizar contrato:", error);
                 showNotification(`Erro: ${error.message}`, "error", 6000);
-                if (error.message.includes("Autenticação")) {
-                    setTimeout(() => window.location.reload(), 6000);
-                }
             } finally {
                 button.disabled = false;
                 document.getElementById('btn-text').classList.remove('hidden');
@@ -805,155 +690,86 @@
             if (summarySpan) {
                 summarySpan.textContent = selectedPlan.name;
             }
-
+            
             const pixContainer = document.getElementById('pix-container');
+            
             const pixKeys = {
                 organico_ia: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd152040000530398654077513.165802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525X7M6U8RQ48GMCLTUGLW55R2KT630496D5",
                 dominio_360: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd1520400005303986540812521.935802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525PSJM9CL96QDYWTX573RS5EXS7630457C6"
             };
-
+            
             const planKey = Object.keys(planDetails).find(key => planDetails[key].name === selectedPlan.name);
             const pixKey = pixKeys[planKey];
 
             if (pixKey && pixContainer) {
                 pixContainer.innerHTML = `
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold mb-2 text-indigo-400">Pagamento via PIX</h3>
-                        <p class="text-lg font-semibold mb-1">Valor: ${selectedPlan.priceText}</p>
-                        <p class="text-gray-400 mb-6">Escaneie o QR Code ou copie a chave PIX</p>
-                        
-                        <!-- QR Code -->
-                        <div class="flex justify-center mb-6">
-                            <div class="bg-white p-4 rounded-lg shadow-lg">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(pixKey)}" 
-                                     alt="QR Code PIX" 
-                                     width="250" 
-                                     height="250" 
-                                     class="rounded" />
-                            </div>
+                    <h3 class="text-xl font-bold mb-4">Pagamento Inicial via PIX</h3>
+                    <p class="text-gray-400 mb-4">Aponte a câmera do seu celular para o QR Code ou copie a chave abaixo.</p>
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-2 rounded-lg inline-block shadow-lg">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixKey)}" 
+                                 alt="QR Code PIX" width="200" height="200" />
                         </div>
-                        
-                        <!-- Chave PIX -->
-                        <div class="max-w-md mx-auto">
-                            <label class="block text-sm font-medium text-gray-300 mb-2">
+                        <div class="mt-6 w-full max-w-md">
+                            <label for="pix-key-input" class="block text-sm text-gray-400 mb-1 text-left">
                                 Chave PIX (Copia e Cola):
                             </label>
-                            <div class="flex items-center bg-gray-800 rounded-lg border border-gray-600">
-                                <input type="text" 
-                                       id="pix-key-input" 
-                                       class="flex-1 bg-transparent text-gray-300 text-sm p-3 rounded-l-lg border-none outline-none" 
-                                       value="${pixKey}" 
-                                       readonly>
+                            <div class="flex items-center">
+                                <input type="text" id="pix-key-input" 
+                                       class="bg-gray-800 text-gray-400 text-xs p-3 rounded-l-md w-full border border-gray-700" 
+                                       value="${pixKey}" readonly>
                                 <button id="copy-pix-key-btn" 
-                                        class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-r-lg transition-colors duration-200 flex items-center justify-center min-w-[48px]" 
+                                        class="bg-indigo-600 text-white p-3 rounded-r-md hover:bg-indigo-700" 
                                         title="Copiar chave PIX">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
+                                         viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
                                 </button>
                             </div>
                         </div>
-                        
-                        <!-- Instruções -->
-                        <div class="mt-8 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                            <h4 class="font-semibold text-indigo-400 mb-2">Instruções de Pagamento:</h4>
-                            <ol class="text-sm text-gray-300 text-left space-y-1">
-                                <li>1. Abra o app do seu banco</li>
-                                <li>2. Escolha a opção PIX</li>
-                                <li>3. Escaneie o QR Code ou cole a chave</li>
-                                <li>4. Confirme o pagamento</li>
-                                <li>5. Envie o comprovante para nosso WhatsApp</li>
-                            </ol>
-                        </div>
-                        
-                        <!-- Contato -->
-                        <div class="mt-6">
-                            <p class="text-sm text-gray-400 mb-3">
-                                Após o pagamento, envie o comprovante:
-                            </p>
-                            <a href="https://wa.me/5547999999999" 
-                               target="_blank" 
-                               class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.088"/>
-                                </svg>
-                                Enviar Comprovante
-                            </a>
-                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-gray-500 text-xs">
+                            Após o pagamento, envie o comprovante para o nosso WhatsApp para agilizar a ativação.
+                        </p>
                     </div>
                 `;
-
-                // Funcionalidade de copiar
+                
                 const copyButton = document.getElementById('copy-pix-key-btn');
                 const pixInput = document.getElementById('pix-key-input');
-                
                 if (copyButton && pixInput) {
-                    copyButton.addEventListener('click', async () => {
+                    copyButton.addEventListener('click', () => {
+                        pixInput.select();
+                        pixInput.setSelectionRange(0, 99999); // For mobile devices
                         try {
-                            // Tentar usar a API moderna de clipboard
-                            if (navigator.clipboard && window.isSecureContext) {
-                                await navigator.clipboard.writeText(pixKey);
-                                showNotification("Chave PIX copiada com sucesso! ✓", "success");
-                            } else {
-                                // Fallback para navegadores mais antigos
-                                pixInput.select();
-                                pixInput.setSelectionRange(0, 99999);
-                                document.execCommand('copy');
-                                showNotification("Chave PIX copiada! ✓", "success");
-                                window.getSelection().removeAllRanges();
-                            }
-                            
-                            // Feedback visual
-                            copyButton.classList.add('bg-green-600');
-                            copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
-                            
-                            setTimeout(() => {
-                                copyButton.classList.remove('bg-green-600');
-                                copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>';
-                            }, 2000);
-                            
+                            document.execCommand('copy');
+                            showNotification("Chave PIX copiada!", "success");
                         } catch (err) {
-                            console.error('Erro ao copiar:', err);
-                            showNotification("Erro ao copiar. Selecione e copie manualmente.", "error");
+                            showNotification("Erro ao copiar. Por favor, copie manualmente.", "error");
                         }
+                        window.getSelection().removeAllRanges();
                     });
                 }
             }
 
             checkoutSection.classList.remove('hidden');
+            
             window.scrollTo(0, 0);
         }
 
+        // --- A execução principal começa aqui ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // Disable plan buttons on page load, show a loading state, and save their original text
-            document.querySelectorAll('button[data-plan]').forEach(button => {
-                button.dataset.originalText = button.innerHTML;
-                button.disabled = true;
-                button.innerHTML = `<span class="inline-flex items-center justify-center">
-                                      <svg class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                      Conectando...
-                                    </span>`;
-            });
-
-            // Initialize Firebase. The onAuthStateChanged listener inside will enable the buttons.
+            // Inicializa o Firebase e aguarda a conclusão
             await initializeFirebase();
             
-            // Set up listeners for the plan buttons
-            document.querySelectorAll('[data-plan]').forEach(button => {
-                button.addEventListener('click', () => {
-                    // Double-check if auth is ready before proceeding
-                    if (isAuthReady) {
-                        setupContract(button.getAttribute('data-plan'));
-                    } else {
-                        showNotification("Aguarde a conexão com o sistema de autenticação.", "info");
-                    }
-                });
+            // Adiciona os listeners para os botões dos planos
+            document.querySelectorAll('button[data-plan]').forEach(button => {
+                button.addEventListener('click', () => setupContract(button.getAttribute('data-plan')));
             });
 
-            // Set up listener for the back button
+            // Adiciona o listener para o botão "voltar" na página de checkout
             document.getElementById('back-to-proposal-btn').addEventListener('click', () => {
                 checkoutSection.classList.add('hidden');
                 mainContent.classList.remove('hidden');
