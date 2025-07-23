@@ -208,7 +208,7 @@
                     <div class="price-card p-8 rounded-2xl flex flex-col max-w-md">
                         <h4 class="text-2xl font-bold text-indigo-400 mb-2">Plano Orgânico I.A.</h4>
                         <p class="text-gray-300 mb-6">A base para sua máquina de vendas.</p>
-                        <div class="mb-6"><p class="text-gray-400 text-sm">Taxa única de implementação</p><p class="text-4xl font-black text-white">$1,350</p></div>
+                        <div class="mb-6"><p class="text-gray-400 text-sm">Taxa única de implementação</p><p class="text-4xl font-black text-white">$1,400</p></div>
                         <div class="mb-6"><p class="text-gray-400 text-sm">Custo operacional mensal</p><p class="text-4xl font-black text-white">$450<span class="text-xl font-medium text-gray-400">/mês</span></p></div>
                         <ul class="space-y-4 text-gray-300 flex-grow mb-8">
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Mapeamento estratégico e setup</li>
@@ -325,9 +325,9 @@
         const planDetails = {
             organico_ia: { 
                 name: "Plano Orgânico I.A.", 
-                priceText: "$1,350 (Implementação) + $450/mês",
-                checkoutPrice: 1350.00,
-                financialClause: "O CONTRATANTE pagará ao CONTRATADO o valor único de <strong>$1,350 (mil trezentos e cinquenta dólares)</strong> referente à implementação e, a partir do segundo mês, o valor mensal de <strong>$450 (quatrocentos e cinquenta dólares)</strong> pela operação contínua.",
+                priceText: "$1,400 (Implementação) + $450/mês",
+                checkoutPrice: 1400.00,
+                financialClause: "O CONTRATANTE pagará ao CONTRATADO o valor único de <strong>$1,400 (mil e quatrocentos dólares)</strong> referente à implementação e, a partir do segundo mês, o valor mensal de <strong>$450 (quatrocentos e cinquenta dólares)</strong> pela operação contínua.",
                 services: [
                     "Mapeamento estratégico e setup do Agente de I.A.",
                     "Prospecção e qualificação de leads 24/7.",
@@ -692,7 +692,7 @@
             const pixContainer = document.getElementById('pix-container');
             
             const pixKeys = {
-                organico_ia: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd152040000530398654077513.165802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525X7M6U8RQ48GMCLTUGLW55R2KT630496D5",
+                organico_ia: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd152040000530398654077733.885802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525SZZI0B9DRHQN6J85RAQ0GATJP63042686",
                 dominio_360: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd1520400005303986540812521.935802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525PSJM9CL96QDYWTX573RS5EXS7630457C6"
             };
             
@@ -757,17 +757,17 @@
             window.scrollTo(0, 0);
         }
 
-        // --- A execução principal começa aqui ---
+        // --- Main execution starts here ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // Inicializa o Firebase e aguarda a conclusão
+            // Initialize Firebase and wait for it to be ready
             await initializeFirebase();
             
-            // Adiciona os listeners para os botões dos planos
+            // Add event listeners for plan buttons
             document.querySelectorAll('button[data-plan]').forEach(button => {
                 button.addEventListener('click', () => setupContract(button.getAttribute('data-plan')));
             });
 
-            // Adiciona o listener para o botão "voltar" na página de checkout
+            // Add event listener for the "back" button on the checkout page
             document.getElementById('back-to-proposal-btn').addEventListener('click', () => {
                 checkoutSection.classList.add('hidden');
                 mainContent.classList.remove('hidden');
