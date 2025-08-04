@@ -208,7 +208,6 @@
                     <div class="price-card p-8 rounded-2xl flex flex-col max-w-md">
                         <h4 class="text-2xl font-bold text-indigo-400 mb-2">Plano Orgânico I.A.</h4>
                         <p class="text-gray-300 mb-6">A base para sua máquina de vendas.</p>
-                        <div class="mb-6"><p class="text-gray-400 text-sm">Taxa única de implementação</p><p class="text-4xl font-black text-white">$1,400</p></div>
                         <div class="mb-6"><p class="text-gray-400 text-sm">Custo operacional mensal</p><p class="text-4xl font-black text-white">$450<span class="text-xl font-medium text-gray-400">/mês</span></p></div>
                         <ul class="space-y-4 text-gray-300 flex-grow mb-8">
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Mapeamento estratégico e setup</li>
@@ -258,7 +257,7 @@
                             <li class="flex items-start"><span class="text-indigo-500 mr-3 mt-1">✓</span> Relatórios de performance unificados</li>
                         </ul>
                         <button data-plan="dominio_360" class="cta-button w-full text-center bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg mt-auto" disabled>
-                           Inicializando...
+                            Inicializando...
                         </button>
                     </div>
                 </div>
@@ -287,20 +286,20 @@
     </section>
 
     <section id="checkout-section" class="hidden container mx-auto p-4 md:p-8">
-         <div class="contract-card p-4 sm:p-8 max-w-2xl mx-auto">
+           <div class="contract-card p-4 sm:p-8 max-w-2xl mx-auto">
                <header class="text-center mb-8">
-                     <h1 class="text-3xl md:text-4xl font-bold gradient-text">Finalizar Pagamento</h1>
-                     <p id="checkout-summary" class="text-gray-400 mt-2">Plano selecionado: <span class="font-bold text-indigo-400"></span></p>
+                   <h1 class="text-3xl md:text-4xl font-bold gradient-text">Finalizar Pagamento</h1>
+                   <p id="checkout-summary" class="text-gray-400 mt-2">Plano selecionado: <span class="font-bold text-indigo-400"></span></p>
                </header>
                <div class="flex justify-center">
-                     <div id="pix-container" class="p-6 rounded-lg bg-black text-center w-full md:w-2/3">
-                         <!-- PIX content will be populated by JS -->
-                     </div>
+                   <div id="pix-container" class="p-6 rounded-lg bg-black text-center w-full md:w-2/3">
+                       <!-- PIX content will be populated by JS -->
+                   </div>
                </div>
                <div class="text-center mt-8">
-                     <button id="back-to-proposal-btn" class="text-indigo-400 hover:text-indigo-300">&larr; Voltar para os Planos</button>
+                   <button id="back-to-proposal-btn" class="text-indigo-400 hover:text-indigo-300">&larr; Voltar para os Planos</button>
                </div>
-         </div>
+           </div>
     </section>
 
     <!-- Footer -->
@@ -325,16 +324,17 @@
         const planDetails = {
             organico_ia: { 
                 name: "Plano Orgânico I.A.", 
-                priceText: "$1,400 (Implementação) + $450/mês",
-                checkoutPrice: 1400.00,
-                financialClause: "O CONTRATANTE pagará ao CONTRATADO o valor único de <strong>$1,400 (mil e quatrocentos dólares)</strong> referente à implementação e, a partir do segundo mês, o valor mensal de <strong>$450 (quatrocentos e cinquenta dólares)</strong> pela operação contínua.",
+                priceText: "$450/mês", 
+                checkoutPrice: 450.00, 
+                financialClause: "O CONTRATANTE pagará ao CONTRATADO o valor mensal de <strong>$450 (quatrocentos e cinquenta dólares)</strong> pela operação contínua.", 
                 services: [
                     "Mapeamento estratégico e setup do Agente de I.A.",
                     "Prospecção e qualificação de leads 24/7.",
                     "Relatórios de performance e insights.",
                     "Suporte técnico contínuo."
                 ],
-                buttonText: "Construir Minha Base"
+                buttonText: "Construir Minha Base",
+                checkoutLink: "https://invoice.infinitepay.io/plans/empreendimentosroi360/DsRtQ0ukB" // Updated checkout link
             },
             dominio_360: { 
                 name: "Plano Domínio 360", 
@@ -349,7 +349,8 @@
                     "Análise Preditiva de ROI em anúncios.",
                     "Relatórios de performance unificados (Orgânico + Pago)."
                 ],
-                buttonText: "Dominar o Mercado"
+                buttonText: "Dominar o Mercado",
+                checkoutLink: "https://example.com/dominio360-checkout" // Placeholder for Domínio 360, replace if needed
             }
         };
 
@@ -691,34 +692,29 @@
             
             const pixContainer = document.getElementById('pix-container');
             
-            const pixKeys = {
-                organico_ia: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd152040000530398654077733.885802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525SZZI0B9DRHQN6J85RAQ0GATJP63042686",
-                dominio_360: "00020126580014br.gov.bcb.pix0136c77aad1d-c47a-4c55-a3fb-09c4788fadd1520400005303986540812521.935802BR5925MATHEUS HENRIQUE LAURINDO6008BLUMENAU62290525PSJM9CL96QDYWTX573RS5EXS7630457C6"
-            };
-            
-            const planKey = Object.keys(planDetails).find(key => planDetails[key].name === selectedPlan.name);
-            const pixKey = pixKeys[planKey];
+            // Use the checkoutLink from the selectedPlan
+            const paymentLink = selectedPlan.checkoutLink;
 
-            if (pixKey && pixContainer) {
+            if (paymentLink && pixContainer) {
                 pixContainer.innerHTML = `
-                    <h3 class="text-xl font-bold mb-4">Pagamento Inicial via PIX</h3>
-                    <p class="text-gray-400 mb-4">Aponte a câmera do seu celular para o QR Code ou copie a chave abaixo.</p>
+                    <h3 class="text-xl font-bold mb-4">Finalizar Pagamento</h3>
+                    <p class="text-gray-400 mb-4">Aponte a câmera do seu celular para o QR Code ou clique no link abaixo para pagar.</p>
                     <div class="flex flex-col items-center">
                         <div class="bg-white p-2 rounded-lg inline-block shadow-lg">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixKey)}" 
-                                 alt="QR Code PIX" width="200" height="200" />
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentLink)}" 
+                                 alt="QR Code de Pagamento" width="200" height="200" />
                         </div>
                         <div class="mt-6 w-full max-w-md">
-                            <label for="pix-key-input" class="block text-sm text-gray-400 mb-1 text-left">
-                                Chave PIX (Copia e Cola):
+                            <label for="payment-link-input" class="block text-sm text-gray-400 mb-1 text-left">
+                                Link de Pagamento (Copia e Cola):
                             </label>
                             <div class="flex items-center">
-                                <input type="text" id="pix-key-input" 
+                                <input type="text" id="payment-link-input" 
                                        class="bg-gray-800 text-gray-400 text-xs p-3 rounded-l-md w-full border border-gray-700" 
-                                       value="${pixKey}" readonly>
-                                <button id="copy-pix-key-btn" 
+                                       value="${paymentLink}" readonly>
+                                <button id="copy-payment-link-btn" 
                                         class="bg-indigo-600 text-white p-3 rounded-r-md hover:bg-indigo-700" 
-                                        title="Copiar chave PIX">
+                                        title="Copiar link de pagamento">
                                     <svg xmlns="https://www.w3.org/2000/svg" class="h-5 w-5" fill="none" 
                                          viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -726,6 +722,9 @@
                                     </svg>
                                 </button>
                             </div>
+                            <a href="${paymentLink}" target="_blank" class="mt-4 cta-button inline-block w-full text-center bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                                Ir para o Pagamento
+                            </a>
                         </div>
                     </div>
                     <div class="mt-6 text-center">
@@ -735,15 +734,15 @@
                     </div>
                 `;
                 
-                const copyButton = document.getElementById('copy-pix-key-btn');
-                const pixInput = document.getElementById('pix-key-input');
-                if (copyButton && pixInput) {
+                const copyButton = document.getElementById('copy-payment-link-btn');
+                const linkInput = document.getElementById('payment-link-input');
+                if (copyButton && linkInput) {
                     copyButton.addEventListener('click', () => {
-                        pixInput.select();
-                        pixInput.setSelectionRange(0, 99999); // For mobile devices
+                        linkInput.select();
+                        linkInput.setSelectionRange(0, 99999); // For mobile devices
                         try {
                             document.execCommand('copy');
-                            showNotification("Chave PIX copiada!", "success");
+                            showNotification("Link de pagamento copiado!", "success");
                         } catch (err) {
                             showNotification("Erro ao copiar. Por favor, copie manualmente.", "error");
                         }
